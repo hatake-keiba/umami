@@ -300,7 +300,7 @@ function showTab(k){ tab=k; document.querySelectorAll('section').forEach(s=>s.cl
 document.querySelectorAll('.nav button').forEach(b=>b.onclick=()=>{ if(b.dataset.k==='races'&&tab==='race'){ showTab('races'); return; } showTab(b.dataset.k); });
 function renderHeader(){ const d=FREE.date, ds=`${d.slice(0,4)}.${d.slice(4,6)}.${d.slice(6,8)}`;
   if(tab==='race'&&cur.race){ const r=byRid[cur.race]; $('#hd').innerHTML=`<button class="bk" onclick="showTab('races')">${ico('back')}${esc(r.place_name)} R一覧</button><div class="dt"><b>${ds}</b>${esc(r.time)} 発走</div>`; }
-  else $('#hd').innerHTML=`<div class="wm"><i><svg class="ic" style="stroke-width:1.5"><use href="#i-face"/></svg></i><div>UMAMI<small>けいばをたのしむ</small></div></div><div class="dt"><b>${ds}</b>UPD 09/07 00:11<br>${PAID?(member?'MEMBER':'FREE'):'DEV'}</div>`; }
+  else $('#hd').innerHTML=`<div class="wm"><i><svg class="ic" style="stroke-width:1.5"><use href="#i-face"/></svg></i><div>UMAMI<small>けいばをたのしむ</small></div></div><div class="dt"><b>${ds}</b>UPD 09/07 00:12<br>${PAID?(member?'MEMBER':'FREE'):'DEV'}</div>`; }
 function renderAll(){ renderBaba(); renderRaces(); renderRec(); renderMem(); let k=ls.get('umami_tab','races'); if(k==='race'&&!cur.race) k='races'; showTab(k); }
 
 /* ===== レース一覧（= きょう） ===== */
@@ -353,7 +353,7 @@ function renderRaces(){
   const strip='';
   const rs=RACES.filter(r=>r.place===cur.venue).sort((a,b)=>a.R-b.R);
   el.innerHTML=`<h2>${ico('flag')}レース</h2><div class="seg" style="margin-top:10px">${VENUES.map(p=>`<button data-p="${p}" class="${p===cur.venue?'on':''}">${COURSE[p]?COURSE[p].name:p}</button>`).join('')}</div>
-    <div class="rg">${rs.map(r=>{ const ok=r.runners.length>=2, done=!!(rec[r.rid]&&(rec[r.rid].runs||[]).length); return `<button class="rb${r.grade?' g':''}${r.rid===nx?' next':''}${ok?'':' dis'}" data-rid="${r.rid}" ${ok?'':'disabled'}>${r.rid===nx?'<span class="tag">NEXT</span>':(done?'<svg class="ic done"><use href="#i-check"/></svg>':'')}<div class="rn">${r.R}<i>${esc(r.time)}</i></div><div class="nm">${esc(r.name)}${r.grade?' '+r.grade:''}</div><div class="cd">${esc(r.surface)}${r.dist} ${ok?r.runners.length+'頭':'枠順待ち'}</div></button>`; }).join('')}</div>
+    <div class="rg">${rs.map(r=>{ const ok=r.runners.length>=2, done=!!(rec[r.rid]&&(rec[r.rid].runs||[]).length); return `<button class="rb${isMain(r)?' g':''}${r.rid===nx?' next':''}${ok?'':' dis'}" data-rid="${r.rid}" ${ok?'':'disabled'}>${r.rid===nx?'<span class="tag">NEXT</span>':(done?'<svg class="ic done"><use href="#i-check"/></svg>':'')}<div class="rn">${r.R}<i>${esc(r.time)}</i></div><div class="nm">${esc(r.name)}${r.grade?' '+r.grade:''}</div><div class="cd">${esc(r.surface)}${r.dist} ${ok?r.runners.length+'頭':'枠順待ち'}</div></button>`; }).join('')}</div>
     <div class="note">黄色＝メインレース（無料）</div>`;
   el.querySelectorAll('.seg button').forEach(b=>b.onclick=()=>{ cur.venue=b.dataset.p; renderRaces(); });
   el.querySelectorAll('.rb:not(.dis)').forEach(b=>b.onclick=()=>openRace(b.dataset.rid));
@@ -364,7 +364,8 @@ function styleOf(r){ const hs=r.runners, ten=hs.filter(h=>h.ten1f!=null).sort((a
   ten.forEach((h,i)=>{ st[h.uno]= i===0?'逃げ': i<Math.max(3,Math.floor(n/4))?'先行': i<n*0.7?'差し':'追込'; });
   hs.forEach(h=>{ if(!st[h.uno]){ const p=h.h1c1||h.prevpos; st[h.uno]= p==null?'差し': p<=1?'逃げ': p<=4?'先行': p<=Math.max(6,hs.length*0.6)?'差し':'追込'; }}); return st; }
 function paceOf(r){ const x=r.load_rate; if(x==null) return ['—','M']; const tens=r.runners.filter(h=>h.ten1f!=null).map(h=>h.ten1f).sort((a,b)=>a-b); const tight=tens.length>=2?tens.filter(t=>t<=tens[0]+0.2).length:0; const sc=x+(tight>=5?8:0); return sc>=55?['ハイ','H']: sc<=32?['スロー','S']:['ミドル','M']; }
-function isFree(r){ return !!r.grade; }
+function isMain(r){ return !!r.grade || r.R===11; }
+function isFree(r){ return isMain(r); }
 function strengths(r){ const hs=r.runners, n=hs.length; let p, src;
   if(hs.some(h=>h.pred!=null)){ p=hs.map(h=>h.pred!=null?h.pred:null); src='HIVE勝率'; }
   else if(hs.some(h=>h.odds)){ p=hs.map(h=>h.odds?Math.pow(1/h.odds,0.93):null); src='市場評価'; }
