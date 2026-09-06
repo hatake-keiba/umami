@@ -9,7 +9,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700;800&family=Zen+Kaku+Gothic+New:wght@500;700;900&family=DM+Mono:wght@400;500&family=Outfit:wght@700;800&display=swap">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <style>
-:root{--ink:#111;--mute:#666;--soft:#999;--bg:#fff;--bg2:#fafaf7;--y:#fbf3d9;--b:#e6f0f8;--g:#e8f3e3;--p:#f6e6ec;}
+:root{--ink:#111;--mute:#666;--soft:#999;--bg:#fff;--bg2:#fafaf7;--y:#fbf3d9;--b:#e6f0f8;--g:#e8f3e3;--p:#f6e6ec;--br:#f1e8da;}
 *{margin:0;padding:0;box-sizing:border-box}
 html{background:var(--bg2)}
 body{background:var(--bg2);color:var(--ink);font-family:'M PLUS Rounded 1c','Zen Kaku Gothic New','Hiragino Maru Gothic ProN',Meiryo,sans-serif;font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
@@ -52,6 +52,8 @@ h3::after{content:"";flex:1;height:1.5px;background:#ddd}
 .strip .dt.on{display:block}
 .kv{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5px;background:var(--ink);border:1.5px solid var(--ink);border-radius:10px;overflow:hidden;margin-top:10px}
 .kv div{background:#fff;padding:8px 8px 6px}
+.kv div.t{background:var(--g)}
+.kv div.d{background:var(--br)}
 .kv label{display:block;font-size:9.5px;color:var(--mute);font-weight:700}
 .kv b{font-family:'DM Mono';font-size:20px;font-weight:500}
 .kv b small{font-size:10px;color:var(--mute);margin-left:2px}
@@ -295,7 +297,7 @@ function showTab(k){ tab=k; document.querySelectorAll('section').forEach(s=>s.cl
 document.querySelectorAll('.nav button').forEach(b=>b.onclick=()=>{ if(b.dataset.k==='races'&&tab==='race'){ showTab('races'); return; } showTab(b.dataset.k); });
 function renderHeader(){ const d=FREE.date, ds=`${d.slice(0,4)}.${d.slice(4,6)}.${d.slice(6,8)}`;
   if(tab==='race'&&cur.race){ const r=byRid[cur.race]; $('#hd').innerHTML=`<button class="bk" onclick="showTab('races')">${ico('back')}${esc(r.place_name)} R一覧</button><div class="dt"><b>${ds}</b>${esc(r.time)} 発走</div>`; }
-  else $('#hd').innerHTML=`<div class="wm"><i><svg class="ic" style="stroke:none"><use href="#i-face"/></svg></i><div>UMAMI<small>RACE COLLECTION</small></div></div><div class="dt"><b>${ds}</b>UPD 09/06 22:59<br>${PAID?(member?'MEMBER':'FREE'):'DEV'}</div>`; }
+  else $('#hd').innerHTML=`<div class="wm"><i><svg class="ic" style="stroke:none"><use href="#i-face"/></svg></i><div>UMAMI<small>RACE COLLECTION</small></div></div><div class="dt"><b>${ds}</b>UPD 09/06 23:01<br>${PAID?(member?'MEMBER':'FREE'):'DEV'}</div>`; }
 function renderAll(){ renderBaba(); renderRaces(); renderRec(); renderMem(); let k=ls.get('umami_tab','races'); if(k==='race'&&!cur.race) k='races'; showTab(k); }
 
 /* ===== レース一覧（= きょう） ===== */
@@ -304,8 +306,8 @@ function wxGrid(name){ const wx=FREE.wx&&FREE.wx[name]; if(!wx||!wx.length) retu
   return `<h3>この先12時間の天気（1時間ごと・予報）</h3><div class="hw"><div class="hg" style="grid-template-columns:repeat(${wx.length},minmax(34px,1fr))">${wx.map(e=>`<div class="${(e.p||0)>0?'rain':''}"><b>${esc(e.h)}</b>${ico(wi(e.w))}<span>${e.t!=null?Math.round(e.t)+'°':'—'}</span><span class="pr">${(e.p||0)>0?e.p.toFixed(1)+'mm':'0'}</span></div>`).join('')}</div></div>`; }
 function babaDetail(b,name){ const tm=b.turf_moist||[], dm=b.dirt_moist||[]; const wk=(b.week||[]).filter(w=>w.w&&w.w!=='-').slice(-7);
   return `<div class="kv"><div><label>クッション値</label><b>${b.cushion!=null?b.cushion:'—'}</b><i>${esc((b.cushion_time||'').replace(/（.*?）/,''))}</i></div>
-      <div><label>芝 含水率</label><b>${tm[0]!=null?tm[0]:'—'}<small>%</small></b><i>ゴール前 ${tm[0]!=null?tm[0]:'—'} ／ 4角 ${tm[1]!=null?tm[1]:'—'}</i></div>
-      <div><label>ダート 含水率</label><b>${dm[0]!=null?dm[0]:'—'}<small>%</small></b><i>ゴール前 ${dm[0]!=null?dm[0]:'—'} ／ 4角 ${dm[1]!=null?dm[1]:'—'}</i></div></div>
+      <div class="t"><label>芝 含水率</label><b>${tm[0]!=null?tm[0]:'—'}<small>%</small></b><i>ゴール前 ${tm[0]!=null?tm[0]:'—'} ／ 4角 ${tm[1]!=null?tm[1]:'—'}</i></div>
+      <div class="d"><label>ダート 含水率</label><b>${dm[0]!=null?dm[0]:'—'}<small>%</small></b><i>ゴール前 ${dm[0]!=null?dm[0]:'—'} ／ 4角 ${dm[1]!=null?dm[1]:'—'}</i></div></div>
       <div class="chips"><span class="chip">芝丈<b>${esc(b.turf_len||'—')}</b></span><span class="chip">使用<b>${esc((b.use_course||'—').split('（')[0])}</b></span></div>
       ${wxGrid(name)}
       ${wk.length?`<h3>今週の天候・雨量・散水（JRA発表）</h3><div class="wk">${wk.map(w=>`<div class="${(+w.r||0)>0?'rain':''}"><b>${w.d}</b>${ico(wIcon(w.w))}${w.r!==''?w.r+'mm':''}${w.s==='あり'?'<br>散水':''}</div>`).join('')}</div>`:''}
