@@ -21,7 +21,7 @@ svg.ic{width:100%;height:100%;fill:none;stroke:#111;stroke-width:1.6;stroke-line
 /* header */
 .hd{display:flex;align-items:center;justify-content:space-between;min-height:40px}
 .hd .wm{display:flex;align-items:center;gap:8px;font-family:'Outfit',sans-serif;font-size:26px;font-weight:800;letter-spacing:.1em;line-height:1}
-.hd .wm i{width:24px;height:24px;display:block}
+.hd .wm i{width:28px;height:28px;display:block}
 .hd .wm small{display:block;font-family:'DM Mono',monospace;font-size:8px;letter-spacing:.2em;color:var(--mute);margin-top:4px;font-weight:400;white-space:nowrap}
 .hd .dt{font-family:'DM Mono',monospace;font-size:11px;color:var(--mute);text-align:right;line-height:1.4}
 .hd .dt b{display:block;color:var(--ink);font-size:13px;font-weight:500}
@@ -208,7 +208,7 @@ h3::after{content:"";flex:1;height:1.5px;background:#ddd}
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute"><defs>
-<symbol id="i-face" viewBox="0 0 30 30"><circle cx="15" cy="15" r="13" fill="#111" stroke="none"/><circle cx="10.5" cy="13" r="1.6" fill="#fff" stroke="none"/><circle cx="19.5" cy="13" r="1.6" fill="#fff" stroke="none"/><path d="M10 19 Q15 23 20 19" stroke="#fff" stroke-width="1.8" fill="none"/></symbol>
+<symbol id="i-face" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 17.5c5.667 4.667 11.333 4.667 17 0" /><path d="M19 18.5l-2 -8.5l1 -2l2 1l1.5 -1.5l-2.5 -4.5c-5.052 .218 -5.99 3.133 -7 6h-6a3 3 0 0 0 -3 3" /><path d="M5 18.5l2 -9.5" /><path d="M8 20l2 -5h4l2 5" /></symbol>
 <symbol id="i-horse" viewBox="0 0 48 48"><path d="M10 40 L10 26 Q10 18 18 16 L26 12 L30 6 L34 12 L36 20 Q34 26 28 26 L26 32 L26 40"/><path d="M14 40 L14 32"/><path d="M22 40 L22 34"/><circle cx="31" cy="15" r="1" fill="#111"/><path d="M28 10 L30 8"/></symbol>
 <symbol id="i-jockey" viewBox="0 0 48 48"><path d="M16 22 Q16 12 24 12 Q32 12 32 22 Z"/><path d="M14 22 L34 22"/><path d="M18 26 L18 40 M30 26 L30 40 M18 30 L30 30"/><path d="M24 22 L24 26"/><circle cx="24" cy="26" r="3"/></symbol>
 <symbol id="i-track" viewBox="0 0 48 48"><path d="M8 26 C8 18 18 12 24 12 C30 12 40 18 40 26 C40 34 30 40 24 40 C18 40 8 34 8 26 Z"/><path d="M16 26 C16 22 20 20 24 20 C28 20 32 22 32 26 C32 30 28 32 24 32 C20 32 16 30 16 26 Z"/><path d="M40 26 L44 24"/><path d="M12 36 L8 40"/></symbol>
@@ -299,7 +299,7 @@ function showTab(k){ tab=k; document.querySelectorAll('section').forEach(s=>s.cl
 document.querySelectorAll('.nav button').forEach(b=>b.onclick=()=>{ if(b.dataset.k==='races'&&tab==='race'){ showTab('races'); return; } showTab(b.dataset.k); });
 function renderHeader(){ const d=FREE.date, ds=`${d.slice(0,4)}.${d.slice(4,6)}.${d.slice(6,8)}`;
   if(tab==='race'&&cur.race){ const r=byRid[cur.race]; $('#hd').innerHTML=`<button class="bk" onclick="showTab('races')">${ico('back')}${esc(r.place_name)} R一覧</button><div class="dt"><b>${ds}</b>${esc(r.time)} 発走</div>`; }
-  else $('#hd').innerHTML=`<div class="wm"><i><svg class="ic" style="stroke:none"><use href="#i-face"/></svg></i><div>UMAMI<small>RACE COLLECTION</small></div></div><div class="dt"><b>${ds}</b>UPD 09/06 23:19<br>${PAID?(member?'MEMBER':'FREE'):'DEV'}</div>`; }
+  else $('#hd').innerHTML=`<div class="wm"><i><svg class="ic" style="stroke-width:2.4"><use href="#i-face"/></svg></i><div>UMAMI<small>RACE COLLECTION</small></div></div><div class="dt"><b>${ds}</b>UPD 09/06 23:35<br>${PAID?(member?'MEMBER':'FREE'):'DEV'}</div>`; }
 function renderAll(){ renderBaba(); renderRaces(); renderRec(); renderMem(); let k=ls.get('umami_tab','races'); if(k==='race'&&!cur.race) k='races'; showTab(k); }
 
 /* ===== レース一覧（= きょう） ===== */
