@@ -301,7 +301,7 @@ function showTab(k){ tab=k; document.querySelectorAll('section').forEach(s=>s.cl
 document.querySelectorAll('.nav button').forEach(b=>b.onclick=()=>{ if(b.dataset.k==='races'&&tab==='race'){ showTab('races'); return; } showTab(b.dataset.k); });
 function renderHeader(){ const d=FREE.date, ds=`${d.slice(0,4)}.${d.slice(4,6)}.${d.slice(6,8)}`;
   if(tab==='race'&&cur.race){ const r=byRid[cur.race]; $('#hd').innerHTML=`<button class="bk" onclick="showTab('races')">${ico('back')}${esc(r.place_name)} R一覧</button><div class="dt"><b>${ds}</b>${esc(r.time)} 発走</div>`; }
-  else $('#hd').innerHTML=`<div class="wm"><i><svg class="ic" style="stroke-width:1.5"><use href="#i-face"/></svg></i><div>UMAMI<small>けいばをたのしむ</small></div></div><div class="dt"><b>${ds}</b>UPD 09/07 00:19<br>${PAID?(member?'MEMBER':'FREE'):'DEV'}</div>`; }
+  else $('#hd').innerHTML=`<div class="wm"><i><svg class="ic" style="stroke-width:1.5"><use href="#i-face"/></svg></i><div>UMAMI<small>けいばをたのしむ</small></div></div><div class="dt"><b>${ds}</b>UPD 09/07 00:21<br>${PAID?(member?'MEMBER':'FREE'):'DEV'}</div>`; }
 function renderAll(){ renderBaba(); renderRaces(); renderRec(); renderMem(); let k=ls.get('umami_tab','races'); if(k==='race'&&!cur.race) k='races'; showTab(k); }
 
 /* ===== レース一覧（= きょう） ===== */
@@ -355,7 +355,7 @@ function renderRaces(){
   const rs=RACES.filter(r=>r.place===cur.venue).sort((a,b)=>a.R-b.R);
   el.innerHTML=`<h2>${ico('flag')}レース</h2><div class="seg" style="margin-top:10px">${VENUES.map(p=>`<button data-p="${p}" class="${p===cur.venue?'on':''}">${COURSE[p]?COURSE[p].name:p}</button>`).join('')}</div>
     <div class="rg">${rs.map(r=>{ const ok=r.runners.length>=2&&!r.jump, done=!!(rec[r.rid]&&(rec[r.rid].runs||[]).length); return `<button class="rb${isMain(r)&&!r.jump?' g':''}${r.rid===nx?' next':''}${ok?'':' dis'}" data-rid="${r.rid}" ${ok?'':'disabled'}>${r.rid===nx?'<span class="tag">NEXT</span>':(isMain(r)&&!member?'<span class="tag">FREE</span>':(done?'<svg class="ic done"><use href="#i-check"/></svg>':''))}<div class="rn">${r.R}<i>${esc(r.time)}</i></div><div class="nm">${esc(r.name)}${r.grade?' '+r.grade:''}</div><div class="cd">${r.jump?'障害 '+r.dist:esc(r.surface)+r.dist+' '+(ok?r.runners.length+'頭':'枠順待ち')}</div></button>`; }).join('')}</div>
-    <div class="note">黄色＝メインレース（無料）</div>`;
+    `;
   el.querySelectorAll('.seg button').forEach(b=>b.onclick=()=>{ cur.venue=b.dataset.p; renderRaces(); });
   el.querySelectorAll('.rb:not(.dis)').forEach(b=>b.onclick=()=>openRace(b.dataset.rid));
 }
