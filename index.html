@@ -183,7 +183,7 @@ h3::after{content:"";flex:1;height:1.5px;background:#ddd}
 /* bottom bar */
 .nav{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1.5px solid var(--ink);z-index:30}
 .nav .in{max-width:520px;margin:0 auto;display:flex;justify-content:space-around;padding:8px 0 10px}
-.nav button{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:9.5px;font-weight:800;color:var(--mute);width:96px}
+.nav button{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:9.5px;font-weight:800;color:var(--mute);width:80px}
 .nav button i{width:24px;height:24px;display:block}
 .nav button.on{color:var(--ink)}
 .nav button:not(.on) svg{stroke:#888}
@@ -217,6 +217,7 @@ h3::after{content:"";flex:1;height:1.5px;background:#ddd}
 </defs></svg>
 <div class="wrap">
   <div class="hd" id="hd"></div>
+  <section id="s-baba"></section>
   <section id="s-races"></section>
   <section id="s-race"></section>
   <section id="s-rec"></section>
@@ -224,6 +225,7 @@ h3::after{content:"";flex:1;height:1.5px;background:#ddd}
   <div class="foot">うまみ（UMAMI）は試作版。数値は netkeiba・JRA公式・亀谷スマート出馬表・自作の勝率モデルから自動生成。結果を保証するものではありません。</div>
 </div>
 <div class="nav"><div class="in">
+  <button data-k="baba"><i><svg class="ic"><use href="#i-baba"/></svg></i>馬場</button>
   <button data-k="races"><i><svg class="ic"><use href="#i-track"/></svg></i>レース</button>
   <button data-k="rec"><i><svg class="ic"><use href="#i-book"/></svg></i>記録</button>
   <button data-k="mem"><i><svg class="ic"><use href="#i-user"/></svg></i>会員</button>
@@ -280,8 +282,8 @@ function showTab(k){ tab=k; document.querySelectorAll('section').forEach(s=>s.cl
 document.querySelectorAll('.nav button').forEach(b=>b.onclick=()=>{ if(b.dataset.k==='races'&&tab==='race'){ showTab('races'); return; } showTab(b.dataset.k); });
 function renderHeader(){ const d=FREE.date, ds=`${d.slice(0,4)}.${d.slice(4,6)}.${d.slice(6,8)}`;
   if(tab==='race'&&cur.race){ const r=byRid[cur.race]; $('#hd').innerHTML=`<button class="bk" onclick="showTab('races')">${ico('back')}${esc(r.place_name)} R一覧</button><div class="dt"><b>${ds}</b>${esc(r.time)} 発走</div>`; }
-  else $('#hd').innerHTML=`<div class="wm"><i><svg class="ic" style="stroke:none"><use href="#i-face"/></svg></i><div>うまみ<small>UMAMI ・ RACE COLLECTION</small></div></div><div class="dt"><b>${ds}</b>UPD 09/06 22:16<br>${PAID?(member?'MEMBER':'FREE'):'DEV'}</div>`; }
-function renderAll(){ renderRaces(); renderRec(); renderMem(); let k=ls.get('umami_tab','races'); if(k==='race'&&!cur.race) k='races'; showTab(k); }
+  else $('#hd').innerHTML=`<div class="wm"><i><svg class="ic" style="stroke:none"><use href="#i-face"/></svg></i><div>うまみ<small>UMAMI ・ RACE COLLECTION</small></div></div><div class="dt"><b>${ds}</b>UPD 09/06 22:29<br>${PAID?(member?'MEMBER':'FREE'):'DEV'}</div>`; }
+function renderAll(){ renderBaba(); renderRaces(); renderRec(); renderMem(); let k=ls.get('umami_tab','races'); if(k==='race'&&!cur.race) k='races'; showTab(k); }
 
 /* ===== レース一覧（= きょう） ===== */
 function wIcon(w){ w=w||''; return w.includes('雨')?'rain':w.includes('曇')?'cloud':'sun'; }
@@ -293,17 +295,19 @@ function babaDetail(b){ const tm=b.turf_moist||[], dm=b.dirt_moist||[]; const wk
       ${wk.length?`<div class="wk">${wk.map(w=>`<div class="${(+w.r||0)>0?'rain':''}"><b>${w.d}</b>${ico(wIcon(w.w))}${w.r!==''?w.r+'mm':''}${w.s==='あり'?'<br>散水':''}</div>`).join('')}</div>`:''}
       ${b.turf_state?`<div class="note">${esc(b.turf_state)}</div>`:''}
       ${(b.maintenance||[]).length?`<ul class="note">${b.maintenance.map(m=>`<li>${esc(m)}</li>`).join('')}</ul>`:''}`; }
+function renderBaba(){ const el=$('#s-baba'); const names=Object.keys(FREE.baba);
+  el.innerHTML=`<h2>${ico('baba')}馬場</h2><div class="lead">JRA公式の発表そのまま。クッション値・含水率・芝の状態・1週間の天候と整備。誰でも見られます。</div>`+
+    (names.length?names.map(n=>{ const b=FREE.baba[n]; return `<div class="card" style="padding:12px"><div class="ttl">${ico('flag')}<div><b style="font-size:17px">${esc(n)}</b><span>芝 ${esc(b.turf_going||'—')} ／ ダ ${esc(b.dirt_going||'—')}</span></div><span class="mono">${esc((b.use_course||'').split('（')[0])}</span></div>${babaDetail(b)}</div>`; }).join(''):'<div class="empty">JRA馬場情報が未取得です。</div>'); }
 function nextRid(){ const now=new Date(); const hm=now.getHours()*60+now.getMinutes(); const today=FREE.date===`${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}`;
   const rs=RACES.filter(r=>r.place===cur.venue&&r.runners.length>=2).sort((a,b)=>(a.time||'').localeCompare(b.time||''));
   if(!today) return rs[0]&&rs[0].rid; const up=rs.find(r=>{ const m=(r.time||'').match(/(\d+):(\d+)/); return m&&(+m[1]*60+ +m[2])>=hm; }); return (up||rs[rs.length-1]||{}).rid; }
 function renderRaces(){
   const el=$('#s-races'); const names=Object.keys(FREE.baba); const rec=ls.get(RECK,{}); const nx=nextRid();
-  const strip=names.length?`<div class="strip">${names.map(n=>{ const b=FREE.baba[n]; return `<button class="ln" data-v="${esc(n)}">${ico('flag')}<b>${esc(n)}</b><span class="v">芝<em>${esc(b.turf_going||'—')}</em> ダ<em>${esc(b.dirt_going||'—')}</em> クッション<em>${b.cushion!=null?b.cushion:'—'}</em> 含水<em>${(b.turf_moist||[])[0]!=null?(b.turf_moist||[])[0]+'%':'—'}</em></span><svg class="ic ar"><use href="#i-ar"/></svg></button><div class="dt" data-v="${esc(n)}">${babaDetail(b)}</div>`; }).join('')}</div>`:'';
+  const strip='';
   const rs=RACES.filter(r=>r.place===cur.venue).sort((a,b)=>a.R-b.R);
-  el.innerHTML=strip+`<div class="seg" style="margin-top:14px">${VENUES.map(p=>`<button data-p="${p}" class="${p===cur.venue?'on':''}">${COURSE[p]?COURSE[p].name:p}</button>`).join('')}</div>
+  el.innerHTML=`<h2>${ico('track')}レース</h2><div class="seg" style="margin-top:10px">${VENUES.map(p=>`<button data-p="${p}" class="${p===cur.venue?'on':''}">${COURSE[p]?COURSE[p].name:p}</button>`).join('')}</div>
     <div class="rg">${rs.map(r=>{ const ok=r.runners.length>=2, done=!!(rec[r.rid]&&(rec[r.rid].runs||[]).length); return `<button class="rb${r.grade?' g':''}${r.rid===nx?' next':''}${ok?'':' dis'}" data-rid="${r.rid}" ${ok?'':'disabled'}>${r.rid===nx?'<span class="tag">NEXT</span>':(done?'<svg class="ic done"><use href="#i-check"/></svg>':'')}<div class="rn">${r.R}<i>${esc(r.time)}</i></div><div class="nm">${esc(r.name)}${r.grade?' '+r.grade:''}</div><div class="cd">${esc(r.surface)}${r.dist} ${ok?r.runners.length+'頭':'枠順待ち'}</div></button>`; }).join('')}</div>
     <div class="note">黄色＝重賞（展開まで無料）。NEXT＝この会場の次のレース。チェック＝走らせた。</div>`;
-  el.querySelectorAll('.strip .ln').forEach(b=>b.onclick=()=>{ b.classList.toggle('open'); const d=el.querySelector(`.strip .dt[data-v="${b.dataset.v}"]`); d.classList.toggle('on'); });
   el.querySelectorAll('.seg button').forEach(b=>b.onclick=()=>{ cur.venue=b.dataset.p; renderRaces(); });
   el.querySelectorAll('.rb:not(.dis)').forEach(b=>b.onclick=()=>openRace(b.dataset.rid));
 }
