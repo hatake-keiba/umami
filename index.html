@@ -9,7 +9,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700;800&family=Zen+Kaku+Gothic+New:wght@500;700;900&family=DM+Mono:wght@400;500&family=Outfit:wght@700;800&display=swap">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <style>
-:root{--ink:#111;--mute:#666;--soft:#999;--bg:#fff;--bg2:#fafaf7;--y:#fbf3d9;--b:#e6f0f8;--g:#e8f3e3;--p:#f6e6ec;--br:#f1e8da;}
+:root{--ink:#111;--mute:#666;--soft:#999;--bg:#fff;--bg2:#fafaf7;--y:#fbf3d9;--b:#e6f0f8;--g:#e8f3e3;--p:#f6e6ec;--br:#f1e8da;--gr:#efefeb;}
 *{margin:0;padding:0;box-sizing:border-box}
 html{background:var(--bg2)}
 body{background:var(--bg2);color:var(--ink);font-family:'M PLUS Rounded 1c','Zen Kaku Gothic New','Hiragino Maru Gothic ProN',Meiryo,sans-serif;font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
@@ -52,6 +52,7 @@ h3::after{content:"";flex:1;height:1.5px;background:#ddd}
 .strip .dt.on{display:block}
 .kv{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5px;background:var(--ink);border:1.5px solid var(--ink);border-radius:10px;overflow:hidden;margin-top:10px}
 .kv div{background:#fff;padding:8px 8px 6px}
+.kv div.c{background:var(--gr,#efefeb)}
 .kv div.t{background:var(--g)}
 .kv div.d{background:var(--br)}
 .kv label{display:block;font-size:9.5px;color:var(--mute);font-weight:700}
@@ -297,7 +298,7 @@ function showTab(k){ tab=k; document.querySelectorAll('section').forEach(s=>s.cl
 document.querySelectorAll('.nav button').forEach(b=>b.onclick=()=>{ if(b.dataset.k==='races'&&tab==='race'){ showTab('races'); return; } showTab(b.dataset.k); });
 function renderHeader(){ const d=FREE.date, ds=`${d.slice(0,4)}.${d.slice(4,6)}.${d.slice(6,8)}`;
   if(tab==='race'&&cur.race){ const r=byRid[cur.race]; $('#hd').innerHTML=`<button class="bk" onclick="showTab('races')">${ico('back')}${esc(r.place_name)} R一覧</button><div class="dt"><b>${ds}</b>${esc(r.time)} 発走</div>`; }
-  else $('#hd').innerHTML=`<div class="wm"><i><svg class="ic" style="stroke:none"><use href="#i-face"/></svg></i><div>UMAMI<small>RACE COLLECTION</small></div></div><div class="dt"><b>${ds}</b>UPD 09/06 23:01<br>${PAID?(member?'MEMBER':'FREE'):'DEV'}</div>`; }
+  else $('#hd').innerHTML=`<div class="wm"><i><svg class="ic" style="stroke:none"><use href="#i-face"/></svg></i><div>UMAMI<small>RACE COLLECTION</small></div></div><div class="dt"><b>${ds}</b>UPD 09/06 23:05<br>${PAID?(member?'MEMBER':'FREE'):'DEV'}</div>`; }
 function renderAll(){ renderBaba(); renderRaces(); renderRec(); renderMem(); let k=ls.get('umami_tab','races'); if(k==='race'&&!cur.race) k='races'; showTab(k); }
 
 /* ===== レース一覧（= きょう） ===== */
@@ -305,9 +306,9 @@ function wIcon(w){ w=w||''; return w.includes('雨')?'rain':w.includes('曇')?'c
 function wxGrid(name){ const wx=FREE.wx&&FREE.wx[name]; if(!wx||!wx.length) return ''; const wi=w=>w==='雨'?'rain':w==='曇'?'cloud':w==='雪'?'snow':'sun';
   return `<h3>この先12時間の天気（1時間ごと・予報）</h3><div class="hw"><div class="hg" style="grid-template-columns:repeat(${wx.length},minmax(34px,1fr))">${wx.map(e=>`<div class="${(e.p||0)>0?'rain':''}"><b>${esc(e.h)}</b>${ico(wi(e.w))}<span>${e.t!=null?Math.round(e.t)+'°':'—'}</span><span class="pr">${(e.p||0)>0?e.p.toFixed(1)+'mm':'0'}</span></div>`).join('')}</div></div>`; }
 function babaDetail(b,name){ const tm=b.turf_moist||[], dm=b.dirt_moist||[]; const wk=(b.week||[]).filter(w=>w.w&&w.w!=='-').slice(-7);
-  return `<div class="kv"><div><label>クッション値</label><b>${b.cushion!=null?b.cushion:'—'}</b><i>${esc((b.cushion_time||'').replace(/（.*?）/,''))}</i></div>
-      <div class="t"><label>芝 含水率</label><b>${tm[0]!=null?tm[0]:'—'}<small>%</small></b><i>ゴール前 ${tm[0]!=null?tm[0]:'—'} ／ 4角 ${tm[1]!=null?tm[1]:'—'}</i></div>
-      <div class="d"><label>ダート 含水率</label><b>${dm[0]!=null?dm[0]:'—'}<small>%</small></b><i>ゴール前 ${dm[0]!=null?dm[0]:'—'} ／ 4角 ${dm[1]!=null?dm[1]:'—'}</i></div></div>
+  return `<div class="kv"><div class="c"><label>クッション値</label><b>${b.cushion!=null?b.cushion:'—'}</b><i>${esc((b.cushion_time||'').replace(/（.*?）/,''))}</i></div>
+      <div class="t"><label>芝 含水率</label><b>${tm[0]!=null?tm[0]:'—'}<small>%</small></b><i>ゴール前 ${tm[0]!=null?tm[0]:'—'}<br>4角 ${tm[1]!=null?tm[1]:'—'}</i></div>
+      <div class="d"><label>ダート 含水率</label><b>${dm[0]!=null?dm[0]:'—'}<small>%</small></b><i>ゴール前 ${dm[0]!=null?dm[0]:'—'}<br>4角 ${dm[1]!=null?dm[1]:'—'}</i></div></div>
       <div class="chips"><span class="chip">芝丈<b>${esc(b.turf_len||'—')}</b></span><span class="chip">使用<b>${esc((b.use_course||'—').split('（')[0])}</b></span></div>
       ${wxGrid(name)}
       ${wk.length?`<h3>今週の天候・雨量・散水（JRA発表）</h3><div class="wk">${wk.map(w=>`<div class="${(+w.r||0)>0?'rain':''}"><b>${w.d}</b>${ico(wIcon(w.w))}${w.r!==''?w.r+'mm':''}${w.s==='あり'?'<br>散水':''}</div>`).join('')}</div>`:''}
@@ -315,6 +316,8 @@ function babaDetail(b,name){ const tm=b.turf_moist||[], dm=b.dirt_moist||[]; con
       ${(b.maintenance||[]).length?`<h3>整備の記録</h3><ul class="note" style="margin-top:0">${b.maintenance.map(m=>`<li>${esc(m)}</li>`).join('')}</ul>`:''}`; }
 const JP16=['北','北北東','北東','東北東','東','東南東','南東','南南東','南','南南西','南西','西南西','西','西北西','北西','北北西'];
 const jpDir=d=>JP16[Math.round(((d%360)+360)%360/22.5)%16];
+const BR_REF={'札幌':0,'函館':135,'福島':45,'新潟':250,'東京':280,'中山':15,'中京':225,'京都':60,'阪神':315,'小倉':180};
+const w_br=name=>(FREE.wind&&FREE.wind[name]&&FREE.wind[name].br!=null)?FREE.wind[name].br:(BR_REF[name]||0);
 function trackIcon(name){ const code=Object.keys(COURSE).find(k=>COURSE[k].name===name); if(!code) return ''; const c=COURSE[code], w=FREE.wind&&FREE.wind[name];
   // 平面の楕円(直線+半円)。ホームストレッチ=下、GOAL=直線の終端。右回り=時計回り(下の直線は右→左)。全会場を同じ枠に収める
   const L=c.turf.S, C=c.turf.C, rad=(C-2*L)/(2*Math.PI), sgn=c.turn==='右'?-1:1; const W=300, H=150; const wd0=Math.min(14,rad*0.35); const k=Math.min((W-40)/(L+2*rad),(H-62)/(2*rad+2*wd0)); const cx=W/2, cy=H/2-2;
@@ -336,7 +339,7 @@ function trackIcon(name){ const code=Object.keys(COURSE).find(k=>COURSE[k].name=
     <line x1="${gx.toFixed(1)}" y1="${gy1.toFixed(1)}" x2="${gx.toFixed(1)}" y2="${gy2.toFixed(1)}" stroke="#111" stroke-width="2.5"/>
     <text x="${gx.toFixed(1)}" y="${(gy2+13).toFixed(1)}" text-anchor="middle" font-size="9" font-family="DM Mono" font-weight="500">GOAL</text>
     <text x="${cx}" y="${(Y(-rad-wd)-6).toFixed(1)}" text-anchor="middle" font-size="9" font-family="DM Mono" fill="#666">向正面</text>
-    <text x="8" y="${H-6}" font-size="8" font-family="DM Mono" fill="#666">${c.turn==='右'?'右回り':'左回り'} ・ 直線 ${L}m ・ 1周 ${C}m</text>${wind}</svg>${label}</div>`; }
+    <text x="8" y="${H-6}" font-size="8" font-family="DM Mono" fill="#666">${c.turn==='右'?'右回り':'左回り'} ・ 直線 ${L}m ・ 1周 ${C}m</text>${wind}${(()=>{ const na=((sgn>0?0:180)-w_br(name))*Math.PI/180, nx=W-22, ny=22, nl=11; const dx=Math.cos(na)*nl, dy=Math.sin(na)*nl; return `<g transform="translate(${nx},${ny})"><circle r="15" fill="#fff" stroke="#111" stroke-width="1.2"/><line x1="${(-dx*0.7).toFixed(1)}" y1="${(-dy*0.7).toFixed(1)}" x2="${(dx*0.4).toFixed(1)}" y2="${(dy*0.4).toFixed(1)}" stroke="#111" stroke-width="1.6"/><polygon points="${dx.toFixed(1)},${dy.toFixed(1)} ${(dx*0.35-dy*0.4).toFixed(1)},${(dy*0.35+dx*0.4).toFixed(1)} ${(dx*0.35+dy*0.4).toFixed(1)},${(dy*0.35-dx*0.4).toFixed(1)}" fill="#111"/><text x="${(dx*1.9).toFixed(1)}" y="${(dy*1.9+3).toFixed(1)}" text-anchor="middle" font-size="8" font-family="DM Mono" font-weight="500">N</text></g>`; })()}</svg>${label}</div>`; }
 function renderBaba(){ const el=$('#s-baba'); const names=Object.keys(FREE.baba);
   el.innerHTML=`<h2>${ico('baba')}馬場・状態</h2>`+
     (names.length?names.map(n=>{ const b=FREE.baba[n]; return `<div class="card" style="padding:12px"><div class="ttl">${ico('flag')}<div><b style="font-size:17px">${esc(n)}</b><span>芝 ${esc(b.turf_going||'—')} ／ ダート ${esc(b.dirt_going||'—')}</span></div></div>${trackIcon(n)}${babaDetail(b,n)}</div>`; }).join(''):'<div class="empty">JRA馬場情報が未取得です。</div>'); }
