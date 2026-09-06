@@ -297,7 +297,7 @@ async function unlockFrom(inp){ const box=inp.closest('.lock'); const ok=await t
 /* ===== 画面切替（バー=文脈、戻る矢印=レース→一覧 だけ） ===== */
 function showTab(k){ tab=k; document.querySelectorAll('section').forEach(s=>s.classList.toggle('on',s.id==='s-'+k));
   document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('on',b.dataset.k===(k==='race'?'races':k)));
-  renderHeader(); window.scrollTo(0,0); ls.set('umami_tab',k); if(k==='race'&&S){ setupCanvas(); draw(); } }
+  renderHeader(); const ft=document.querySelector('.foot'); if(ft) ft.style.display=(k==='baba')?'':'none'; window.scrollTo(0,0); ls.set('umami_tab',k); if(k==='race'&&S){ setupCanvas(); draw(); } }
 document.querySelectorAll('.nav button').forEach(b=>b.onclick=()=>{ if(b.dataset.k==='races'&&tab==='race'){ showTab('races'); return; } showTab(b.dataset.k); });
 function renderHeader(){ const d=FREE.date, ds=`${d.slice(0,4)}.${d.slice(4,6)}.${d.slice(6,8)}`;
   if(tab==='race'&&cur.race){ const r=byRid[cur.race]; $('#hd').innerHTML=`<button class="bk" onclick="showTab('races')">${ico('back')}${esc(r.place_name)} R一覧</button><div class="dt"><b>${ds}</b>${esc(r.time)} 発走</div>`; }
@@ -355,7 +355,7 @@ function renderRaces(){
   const rs=RACES.filter(r=>r.place===cur.venue).sort((a,b)=>a.R-b.R);
   el.innerHTML=`<h2>${ico('flag')}レース</h2><div class="seg" style="margin-top:10px">${VENUES.map(p=>`<button data-p="${p}" class="${p===cur.venue?'on':''}">${COURSE[p]?COURSE[p].name:p}</button>`).join('')}</div>
     <div class="rg">${rs.map(r=>{ const ok=r.runners.length>=2&&!r.jump, done=!!(rec[r.rid]&&(rec[r.rid].runs||[]).length); return `<button class="rb${isMain(r)&&!r.jump?' g':''}${r.rid===nx?' next':''}${ok?'':' dis'}" data-rid="${r.rid}" ${ok?'':'disabled'}>${r.rid===nx?'<span class="tag">NEXT</span>':(isMain(r)&&!member?'<span class="tag">FREE</span>':(done?'<svg class="ic done"><use href="#i-check"/></svg>':''))}<div class="rn">${r.R}<i>${esc(r.time)}</i></div><div class="nm">${esc(r.name)}${r.grade?' '+r.grade:''}</div><div class="cd">${r.jump?'障害 '+r.dist:esc(r.surface)+r.dist+' '+(ok?r.runners.length+'頭':'枠順待ち')}</div></button>`; }).join('')}</div>
-    `;
+    <div class="note">黄色＝メインレース（無料）</div>`;
   el.querySelectorAll('.seg button').forEach(b=>b.onclick=()=>{ cur.venue=b.dataset.p; renderRaces(); });
   el.querySelectorAll('.rb:not(.dis)').forEach(b=>b.onclick=()=>openRace(b.dataset.rid));
 }
