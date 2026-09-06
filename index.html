@@ -286,7 +286,7 @@ function showTab(k){ tab=k; document.querySelectorAll('section').forEach(s=>s.cl
 document.querySelectorAll('.nav button').forEach(b=>b.onclick=()=>{ if(b.dataset.k==='races'&&tab==='race'){ showTab('races'); return; } showTab(b.dataset.k); });
 function renderHeader(){ const d=FREE.date, ds=`${d.slice(0,4)}.${d.slice(4,6)}.${d.slice(6,8)}`;
   if(tab==='race'&&cur.race){ const r=byRid[cur.race]; $('#hd').innerHTML=`<button class="bk" onclick="showTab('races')">${ico('back')}${esc(r.place_name)} R一覧</button><div class="dt"><b>${ds}</b>${esc(r.time)} 発走</div>`; }
-  else $('#hd').innerHTML=`<div class="wm"><i><svg class="ic" style="stroke:none"><use href="#i-face"/></svg></i><div>UMAMI<small>RACE COLLECTION</small></div></div><div class="dt"><b>${ds}</b>UPD 09/06 22:47<br>${PAID?(member?'MEMBER':'FREE'):'DEV'}</div>`; }
+  else $('#hd').innerHTML=`<div class="wm"><i><svg class="ic" style="stroke:none"><use href="#i-face"/></svg></i><div>UMAMI<small>RACE COLLECTION</small></div></div><div class="dt"><b>${ds}</b>UPD 09/06 22:51<br>${PAID?(member?'MEMBER':'FREE'):'DEV'}</div>`; }
 function renderAll(){ renderBaba(); renderRaces(); renderRec(); renderMem(); let k=ls.get('umami_tab','races'); if(k==='race'&&!cur.race) k='races'; showTab(k); }
 
 /* ===== レース一覧（= きょう） ===== */
@@ -303,7 +303,7 @@ const JP16=['北','北北東','北東','東北東','東','東南東','南東','�
 const jpDir=d=>JP16[Math.round(((d%360)+360)%360/22.5)%16];
 function trackIcon(name){ const code=Object.keys(COURSE).find(k=>COURSE[k].name===name); if(!code) return ''; const c=COURSE[code], w=FREE.wind&&FREE.wind[name];
   // 平面の楕円(直線+半円)。ホームストレッチ=下、GOAL=直線の終端。全会場を同じ幅に揃える(形の違いだけが残る)
-  const L=c.turf.S, C=c.turf.C, rad=(C-2*L)/(2*Math.PI), sgn=c.turn==='右'?1:-1; const W=300, H=150; const wd0=Math.min(14,rad*0.35); const k=Math.min((W-96)/(L+2*rad),(H-62)/(2*rad+2*wd0)); const cx=W/2-16, cy=H/2-2;
+  const L=c.turf.S, C=c.turf.C, rad=(C-2*L)/(2*Math.PI), sgn=c.turn==='右'?-1:1; const W=300, H=150; const wd0=Math.min(14,rad*0.35); const k=Math.min((W-40)/(L+2*rad),(H-62)/(2*rad+2*wd0)); const cx=W/2, cy=H/2-2;
   const X=x=>cx+sgn*x*k, Y=y=>cy+y*k;
   const pos=s=>{ s=((s%C)+C)%C; if(s<Math.PI*rad){const th=Math.PI/2-s/rad;return [L/2+rad*Math.cos(th),rad*Math.sin(th)];} if(s<Math.PI*rad+L) return [L/2-(s-Math.PI*rad),-rad]; if(s<2*Math.PI*rad+L){const th=-Math.PI/2-(s-Math.PI*rad-L)/rad;return [-L/2+rad*Math.cos(th),rad*Math.sin(th)];} return [-L/2+(s-2*Math.PI*rad-L),rad]; };
   const ring=r0=>`M ${X(-L/2)},${Y(r0)} L ${X(L/2)},${Y(r0)} A ${r0*k},${r0*k} 0 0 ${sgn>0?0:1} ${X(L/2)},${Y(-r0)} L ${X(-L/2)},${Y(-r0)} A ${r0*k},${r0*k} 0 0 ${sgn>0?0:1} ${X(-L/2)},${Y(r0)} Z`;
@@ -313,9 +313,9 @@ function trackIcon(name){ const code=Object.keys(COURSE).find(k=>COURSE[k].name=
   const gx=X(L/2), gy1=Y(rad-wd), gy2=Y(rad+wd);
   let wind='', label='';
   if(w&&w.sp!=null){ const to=(w.di+180)%360, th=to-w.br; const al=w.sp*Math.cos(th*Math.PI/180), cr=w.sp*Math.sin(th*Math.PI/180); const wl=w.sp<1?'無風':(Math.abs(al)>=Math.abs(cr)?(al>0?'追い風':'向かい風'):'横風');
-    const ang=(sgn>0?0:180)+sgn*th; const ax=W-30, ay=42, len=18; const rd=ang*Math.PI/180, dx=Math.cos(rd)*len, dy=Math.sin(rd)*len;
+    const ang=(sgn>0?0:180)+th; const ax=cx, ay=cy-2, len=18; const rd=ang*Math.PI/180, dx=Math.cos(rd)*len, dy=Math.sin(rd)*len;
     wind= w.sp<1? `<text x="${ax}" y="${ay+4}" text-anchor="middle" font-size="9" font-family="DM Mono">無風</text>`
-      : `<g transform="translate(${ax},${ay})"><line x1="${(-dx).toFixed(1)}" y1="${(-dy).toFixed(1)}" x2="${(dx*0.55).toFixed(1)}" y2="${(dy*0.55).toFixed(1)}" stroke="#111" stroke-width="2.4" stroke-linecap="round"/><polygon points="${dx.toFixed(1)},${dy.toFixed(1)} ${(dx*0.45-dy*0.45).toFixed(1)},${(dy*0.45+dx*0.45).toFixed(1)} ${(dx*0.45+dy*0.45).toFixed(1)},${(dy*0.45-dx*0.45).toFixed(1)}" fill="#111"/></g><text x="${ax}" y="${ay+34}" text-anchor="middle" font-size="9" font-family="DM Mono" font-weight="500">風 ${w.sp.toFixed(0)}m/s</text>`;
+      : `<g transform="translate(${ax},${ay})"><line x1="${(-dx).toFixed(1)}" y1="${(-dy).toFixed(1)}" x2="${(dx*0.55).toFixed(1)}" y2="${(dy*0.55).toFixed(1)}" stroke="#111" stroke-width="2.4" stroke-linecap="round"/><polygon points="${dx.toFixed(1)},${dy.toFixed(1)} ${(dx*0.45-dy*0.45).toFixed(1)},${(dy*0.45+dx*0.45).toFixed(1)} ${(dx*0.45+dy*0.45).toFixed(1)},${(dy*0.45-dx*0.45).toFixed(1)}" fill="#111"/></g><text x="${ax}" y="${ay+32}" text-anchor="middle" font-size="9" font-family="DM Mono" font-weight="500">風 ${w.sp.toFixed(0)}m/s</text>`;
     label=`<div class="wl">直線は${jpDir(w.br)}向き ／ ${jpDir(w.di)}から <b class="mono">${w.sp.toFixed(0)}m/s</b> → ${wl}<span class="mono" style="color:var(--soft)">${esc(w.time)} 現在</span></div>`; }
   return `<div class="tico"><svg viewBox="0 0 ${W} ${H}" width="100%">
     <path d="${ring(rad+wd)}" fill="#fff" stroke="#111" stroke-width="1.5"/><path d="${ring(rad-wd)}" fill="#fafaf7" stroke="#111" stroke-width="1.5"/>
@@ -360,7 +360,7 @@ function adjust(r,st,pace){ const g=r.geo||{}, L=g.straight||300, slope=(g.slope
 const gumbel=()=>-Math.log(-Math.log(Math.random()+1e-12)+1e-12);
 function drawOrder(l){ const sc=l.map((v,i)=>[v+gumbel(),i]); sc.sort((a,b)=>b[0]-a[0]); return sc.map(x=>x[1]); }
 function monte(l,N){ const n=l.length, win=new Array(n).fill(0), q=new Array(n).fill(0), pl=new Array(n).fill(0), top3=n>=8?3:2; for(let k=0;k<N;k++){ const o=drawOrder(l); win[o[0]]++; q[o[0]]++; q[o[1]]++; for(let j=0;j<top3;j++) pl[o[j]]++; } return {win:win.map(v=>v/N),q:q.map(v=>v/N),pl:pl.map(v=>v/N),top3}; }
-function courseGeom(r){ const c=COURSE[r.place]||COURSE['06'], t=r.surface==='ダ'?c.dirt:c.turf, L=t.S, C=t.C, rad=(C-2*L)/(2*Math.PI), sgn=c.turn==='右'?1:-1;
+function courseGeom(r){ const c=COURSE[r.place]||COURSE['06'], t=r.surface==='ダ'?c.dirt:c.turf, L=t.S, C=t.C, rad=(C-2*L)/(2*Math.PI), sgn=c.turn==='右'?-1:1;
   function pos(s){ s=((s%C)+C)%C; let x,y; if(s<Math.PI*rad){const th=Math.PI/2-s/rad;x=L/2+rad*Math.cos(th);y=rad*Math.sin(th);} else if(s<Math.PI*rad+L){x=L/2-(s-Math.PI*rad);y=-rad;} else if(s<2*Math.PI*rad+L){const th=-Math.PI/2-(s-Math.PI*rad-L)/rad;x=-L/2+rad*Math.cos(th);y=rad*Math.sin(th);} else {x=-L/2+(s-2*Math.PI*rad-L);y=rad;} return [sgn*x,y]; }
   function elev(s){ const f=(((s%C)+C)%C)/C, P=c.prof; for(let i=0;i<P.length-1;i++){ if(f>=P[i][0]&&f<=P[i+1][0]){ const t=(f-P[i][0])/(P[i+1][0]-P[i][0]||1); return P[i][1]+(P[i+1][1]-P[i][1])*t; } } return P[0][1]; }
   function zone(s){ s=((s%C)+C)%C; if(s<Math.PI*rad) return '1〜2コーナー'; if(s<Math.PI*rad+L) return '向正面'; if(s<2*Math.PI*rad+L) return '3〜4コーナー'; return '最後の直線'; }
@@ -446,7 +446,7 @@ function startRun(){ if(S.running) return; if(runsLeft(S.r)<=0){ $('#res').inner
   useRun(S.r); const adj=adjust(S.r,S.st,S.pace), logit=S.p.map((v,i)=>Math.log(v)+adj[i]); S.order=drawOrder(logit); S.tracks=buildTracks(S.order); S.t=0; S.running=true; if(T) T.follow=S.view3d;
   const b=$('#bgo'); b.disabled=true; b.innerHTML='走行中…'; $('#res').innerHTML=''; const dur=(S.r.dist/1000*9000)/S.speed; let t0=null;
   const step=ts=>{ if(!S.running) return; if(t0==null) t0=ts; S.t=Math.min(1,(ts-t0)/dur); status(); renderLead(); if(S.t<1) S.raf=requestAnimationFrame(step); else finishRun(); }; S.raf=requestAnimationFrame(step); }
-function status(){ const g=S.geo,D=S.r.dist,d=D*S.t,rem=Math.max(0,D-d),s=S.tracks.s0+d; let z; if(d<40) z='スタート'; else if(rem<=g.L+20&&g.zone(s)==='最後の直線') z='最後の直線'; else z=g.zone(s)==='向正面'?'道中':g.zone(s); $('#st').innerHTML=`${z}　残り約${Math.round(rem/50)*50}m<small>ELEV ${g.H}m (exaggerated)</small>`; }
+function status(){ const g=S.geo,D=S.r.dist,d=D*S.t,rem=Math.max(0,D-d),s=S.tracks.s0+d; let z; const zn=g.zone(s); if(d<40) z='スタート'; else if(zn==='最後の直線') z= rem<=g.L+20?'最後の直線':'スタンド前（1周目）'; else z= zn==='向正面'?'向正面':zn; $('#st').innerHTML=`${z}　残り約${Math.round(rem/50)*50}m<small>ELEV ${g.H}m (exaggerated)</small>`; }
 function renderLead(){ const el=$('#ld'); if(!el||!S.tracks) return; const hs=S.r.runners; const idx=hs.map((h,i)=>i).sort((a,b)=>S.tracks.dist(b,S.t)-S.tracks.dist(a,S.t)).slice(0,5); el.innerHTML='<span>LEAD</span>'+idx.map(i=>`<b style="background:${WBG[hs[i].waku]};color:${WFG[hs[i].waku]}">${hs[i].uno}</b>`).join(''); }
 function saveRec(patch){ const all=ls.get(RECK,{}); const cur_=all[S.r.rid]||{runs:[]}; Object.assign(cur_,patch); all[S.r.rid]=cur_; ls.set(RECK,all); }
 function finishRun(){ S.running=false; if(T&&T.follow){ setTimeout(()=>{ if(T&&!S.running) fitCamera(); },900); } const b=$('#bgo'), left=runsLeft(S.r); b.disabled=left<=0; b.innerHTML= left<=0?'無料分は使い切りました': '<svg viewBox="0 0 12 12"><path d="M2 1.5v9l8-4.5z"/></svg>もう一回（別の試行）'; const hs=S.r.runners; $('#st').innerHTML=`ゴール<small>WIN ${esc(hs[S.order[0]].name)}</small>`;
