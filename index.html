@@ -286,7 +286,7 @@ function showTab(k){ tab=k; document.querySelectorAll('section').forEach(s=>s.cl
 document.querySelectorAll('.nav button').forEach(b=>b.onclick=()=>{ if(b.dataset.k==='races'&&tab==='race'){ showTab('races'); return; } showTab(b.dataset.k); });
 function renderHeader(){ const d=FREE.date, ds=`${d.slice(0,4)}.${d.slice(4,6)}.${d.slice(6,8)}`;
   if(tab==='race'&&cur.race){ const r=byRid[cur.race]; $('#hd').innerHTML=`<button class="bk" onclick="showTab('races')">${ico('back')}${esc(r.place_name)} R一覧</button><div class="dt"><b>${ds}</b>${esc(r.time)} 発走</div>`; }
-  else $('#hd').innerHTML=`<div class="wm"><i><svg class="ic" style="stroke:none"><use href="#i-face"/></svg></i><div>UMAMI<small>RACE COLLECTION</small></div></div><div class="dt"><b>${ds}</b>UPD 09/06 22:40<br>${PAID?(member?'MEMBER':'FREE'):'DEV'}</div>`; }
+  else $('#hd').innerHTML=`<div class="wm"><i><svg class="ic" style="stroke:none"><use href="#i-face"/></svg></i><div>UMAMI<small>RACE COLLECTION</small></div></div><div class="dt"><b>${ds}</b>UPD 09/06 22:47<br>${PAID?(member?'MEMBER':'FREE'):'DEV'}</div>`; }
 function renderAll(){ renderBaba(); renderRaces(); renderRec(); renderMem(); let k=ls.get('umami_tab','races'); if(k==='race'&&!cur.race) k='races'; showTab(k); }
 
 /* ===== レース一覧（= きょう） ===== */
@@ -302,20 +302,28 @@ function babaDetail(b){ const tm=b.turf_moist||[], dm=b.dirt_moist||[]; const wk
 const JP16=['北','北北東','北東','東北東','東','東南東','南東','南南東','南','南南西','南西','西南西','西','西北西','北西','北北西'];
 const jpDir=d=>JP16[Math.round(((d%360)+360)%360/22.5)%16];
 function trackIcon(name){ const code=Object.keys(COURSE).find(k=>COURSE[k].name===name); if(!code) return ''; const c=COURSE[code], w=FREE.wind&&FREE.wind[name];
-  // 平面の楕円(直線/半円)を線画で。ホームストレッチは下、右回りは左→右
-  const L=c.turf.S, C=c.turf.C, rad=(C-2*L)/(2*Math.PI), sgn=c.turn==='右'?1:-1; const W=300, H=150, k=Math.min((W-40)/(L+2*rad+40),(H-46)/(2*rad+40)); const cx=W/2, cy=H/2-4;
-  const P=(x,y)=>`${(cx+sgn*x*k).toFixed(1)},${(cy+y*k).toFixed(1)}`;
-  const ring=(r0)=>`M ${P(-L/2, r0)} L ${P(L/2, r0)} A ${(r0*k).toFixed(1)} ${(r0*k).toFixed(1)} 0 0 ${sgn>0?0:1} ${P(L/2,-r0)} L ${P(-L/2,-r0)} A ${(r0*k).toFixed(1)} ${(r0*k).toFixed(1)} 0 0 ${sgn>0?0:1} ${P(-L/2,r0)} Z`;
-  const goalX=cx+sgn*(L/2)*k, goalY=cy+rad*k;
+  // 平面の楕円(直線+半円)。ホームストレッチ=下、GOAL=直線の終端。全会場を同じ幅に揃える(形の違いだけが残る)
+  const L=c.turf.S, C=c.turf.C, rad=(C-2*L)/(2*Math.PI), sgn=c.turn==='右'?1:-1; const W=300, H=150; const wd0=Math.min(14,rad*0.35); const k=Math.min((W-96)/(L+2*rad),(H-62)/(2*rad+2*wd0)); const cx=W/2-16, cy=H/2-2;
+  const X=x=>cx+sgn*x*k, Y=y=>cy+y*k;
+  const pos=s=>{ s=((s%C)+C)%C; if(s<Math.PI*rad){const th=Math.PI/2-s/rad;return [L/2+rad*Math.cos(th),rad*Math.sin(th)];} if(s<Math.PI*rad+L) return [L/2-(s-Math.PI*rad),-rad]; if(s<2*Math.PI*rad+L){const th=-Math.PI/2-(s-Math.PI*rad-L)/rad;return [-L/2+rad*Math.cos(th),rad*Math.sin(th)];} return [-L/2+(s-2*Math.PI*rad-L),rad]; };
+  const ring=r0=>`M ${X(-L/2)},${Y(r0)} L ${X(L/2)},${Y(r0)} A ${r0*k},${r0*k} 0 0 ${sgn>0?0:1} ${X(L/2)},${Y(-r0)} L ${X(-L/2)},${Y(-r0)} A ${r0*k},${r0*k} 0 0 ${sgn>0?0:1} ${X(-L/2)},${Y(r0)} Z`;
+  const wd=Math.min(14,rad*0.35);
+  // 進行方向の矢じり(3つ)。中心線上を s で進み、接線方向を向ける
+  const chev=[0.18,0.5,0.82].map(f=>{ const s0=f*C, p=pos(s0), q=pos(s0+8); const x=X(p[0]), y=Y(p[1]); const ang=Math.atan2(Y(q[1])-y, X(q[0])-x)*180/Math.PI; return `<path d="M -5,-4 L 1,0 L -5,4" transform="translate(${x.toFixed(1)},${y.toFixed(1)}) rotate(${ang.toFixed(0)})" fill="none" stroke="#111" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>`; }).join('');
+  const gx=X(L/2), gy1=Y(rad-wd), gy2=Y(rad+wd);
   let wind='', label='';
   if(w&&w.sp!=null){ const to=(w.di+180)%360, th=to-w.br; const al=w.sp*Math.cos(th*Math.PI/180), cr=w.sp*Math.sin(th*Math.PI/180); const wl=w.sp<1?'無風':(Math.abs(al)>=Math.abs(cr)?(al>0?'追い風':'向かい風'):'横風');
-    const ang=(sgn>0?0:180)+sgn*th; const ax=W-36, ay=26, len=14; const rd=ang*Math.PI/180, dx=Math.cos(rd)*len, dy=Math.sin(rd)*len;
-    wind=w.sp<1?`<circle cx="${ax}" cy="${ay}" r="9" fill="none" stroke="#111" stroke-width="1.5"/><text x="${ax}" y="${ay+3}" text-anchor="middle" font-size="7" font-family="DM Mono">0</text>`:
-      `<g transform="translate(${ax},${ay})"><circle r="15" fill="#fff" stroke="#111" stroke-width="1.5"/><line x1="${-dx}" y1="${-dy}" x2="${dx*0.6}" y2="${dy*0.6}" stroke="#111" stroke-width="2"/><polygon points="${dx},${dy} ${dx*0.55-dy*0.35},${dy*0.55+dx*0.35} ${dx*0.55+dy*0.35},${dy*0.55-dx*0.35}" fill="#111"/></g>`;
-    label=`<div class="wl">直線 ${jpDir(w.br)}向き ／ ${jpDir(w.di)}の風 <b class="mono">${w.sp.toFixed(0)}m/s</b>（${wl}）<span class="mono" style="color:var(--soft)">${esc(w.time)} 現在</span></div>`; }
-  return `<div class="tico"><svg viewBox="0 0 ${W} ${H}" width="100%"><path d="${ring(rad+14)}" fill="#fff" stroke="#111" stroke-width="1.5"/><path d="${ring(rad-10)}" fill="#fafaf7" stroke="#111" stroke-width="1.5"/><path d="${ring(rad+2)}" fill="none" stroke="#999" stroke-width="1" stroke-dasharray="3 4"/>
-    <rect x="${cx-L*k*0.45}" y="${cy+(rad+18)*k}" width="${L*k*0.9}" height="9" fill="#fff" stroke="#111" stroke-width="1.5"/><line x1="${goalX}" y1="${cy+(rad-10)*k}" x2="${goalX}" y2="${cy+(rad+14)*k}" stroke="#111" stroke-width="2"/><text x="${goalX}" y="${cy+(rad+14)*k+20}" text-anchor="middle" font-size="8" font-family="DM Mono">GOAL</text>
-    <text x="10" y="14" font-size="8" font-family="DM Mono" fill="#666">${c.turn==='右'?'RIGHT':'LEFT'} ・ STR ${L}m ・ ${C}m</text>${wind}</svg>${label}</div>`; }
+    const ang=(sgn>0?0:180)+sgn*th; const ax=W-30, ay=42, len=18; const rd=ang*Math.PI/180, dx=Math.cos(rd)*len, dy=Math.sin(rd)*len;
+    wind= w.sp<1? `<text x="${ax}" y="${ay+4}" text-anchor="middle" font-size="9" font-family="DM Mono">無風</text>`
+      : `<g transform="translate(${ax},${ay})"><line x1="${(-dx).toFixed(1)}" y1="${(-dy).toFixed(1)}" x2="${(dx*0.55).toFixed(1)}" y2="${(dy*0.55).toFixed(1)}" stroke="#111" stroke-width="2.4" stroke-linecap="round"/><polygon points="${dx.toFixed(1)},${dy.toFixed(1)} ${(dx*0.45-dy*0.45).toFixed(1)},${(dy*0.45+dx*0.45).toFixed(1)} ${(dx*0.45+dy*0.45).toFixed(1)},${(dy*0.45-dx*0.45).toFixed(1)}" fill="#111"/></g><text x="${ax}" y="${ay+34}" text-anchor="middle" font-size="9" font-family="DM Mono" font-weight="500">風 ${w.sp.toFixed(0)}m/s</text>`;
+    label=`<div class="wl">直線は${jpDir(w.br)}向き ／ ${jpDir(w.di)}から <b class="mono">${w.sp.toFixed(0)}m/s</b> → ${wl}<span class="mono" style="color:var(--soft)">${esc(w.time)} 現在</span></div>`; }
+  return `<div class="tico"><svg viewBox="0 0 ${W} ${H}" width="100%">
+    <path d="${ring(rad+wd)}" fill="#fff" stroke="#111" stroke-width="1.5"/><path d="${ring(rad-wd)}" fill="#fafaf7" stroke="#111" stroke-width="1.5"/>
+    <path d="${ring(rad)}" fill="none" stroke="#999" stroke-width="1" stroke-dasharray="3 4"/>${chev}
+    <line x1="${gx.toFixed(1)}" y1="${gy1.toFixed(1)}" x2="${gx.toFixed(1)}" y2="${gy2.toFixed(1)}" stroke="#111" stroke-width="2.5"/>
+    <text x="${gx.toFixed(1)}" y="${(gy2+13).toFixed(1)}" text-anchor="middle" font-size="9" font-family="DM Mono" font-weight="500">GOAL</text>
+    <text x="${cx}" y="${(Y(-rad-wd)-6).toFixed(1)}" text-anchor="middle" font-size="9" font-family="DM Mono" fill="#666">向正面</text>
+    <text x="8" y="${H-6}" font-size="8" font-family="DM Mono" fill="#666">${c.turn==='右'?'右回り':'左回り'} ・ 直線 ${L}m ・ 1周 ${C}m</text>${wind}</svg>${label}</div>`; }
 function renderBaba(){ const el=$('#s-baba'); const names=Object.keys(FREE.baba);
   el.innerHTML=`<h2>${ico('baba')}馬場・状態</h2><div class="lead">JRA公式の馬場発表と、いまの風。クッション値・含水率・芝の状態・1週間の天候と整備。誰でも見られます。</div>`+
     (names.length?names.map(n=>{ const b=FREE.baba[n]; return `<div class="card" style="padding:12px"><div class="ttl">${ico('flag')}<div><b style="font-size:17px">${esc(n)}</b><span>芝 ${esc(b.turf_going||'—')} ／ ダ ${esc(b.dirt_going||'—')}</span></div><span class="mono">${esc((b.use_course||'').split('（')[0])}</span></div>${trackIcon(n)}${babaDetail(b)}</div>`; }).join(''):'<div class="empty">JRA馬場情報が未取得です。</div>'); }
