@@ -325,7 +325,7 @@ function showTab(k){ tab=k; document.querySelectorAll('section').forEach(s=>s.cl
 document.querySelectorAll('.nav button').forEach(b=>b.onclick=()=>{ if(b.dataset.k==='races'&&tab==='race'){ showTab('races'); return; } showTab(b.dataset.k); });
 function renderHeader(){ const d=FREE.date, ds=`${d.slice(0,4)}.${d.slice(4,6)}.${d.slice(6,8)}`;
   if(tab==='race'&&cur.race){ const r=byRid[cur.race]; $('#hd').innerHTML=`<button class="bk" onclick="showTab('races')">${ico('back')}${esc(r.place_name)} R一覧</button><div class="dt"><b>${ds}</b>${esc(r.time)} 発走</div>`; }
-  else $('#hd').innerHTML=`<div class="wm"><i><svg class="ic" style="stroke-width:1.5"><use href="#i-face"/></svg></i><div>UMAMI<small>けいばをたのしむ</small></div></div><div class="dt"><b>${ds}</b>UPD 09/09 01:56<br>${PAID?(member?'MEMBER':'FREE'):'DEV'}</div>`; }
+  else $('#hd').innerHTML=`<div class="wm"><i><svg class="ic" style="stroke-width:1.5"><use href="#i-face"/></svg></i><div>UMAMI<small>けいばをたのしむ</small></div></div><div class="dt"><b>${ds}</b>UPD 09/09 02:03<br>${PAID?(member?'MEMBER':'FREE'):'DEV'}</div>`; }
 function renderAll(){ renderBaba(); renderRaces(); renderRec(); renderMem(); let k=ls.get('umami_tab','races'); if(k==='race'&&!cur.race) k='races'; showTab(k); }
 
 /* ===== レース一覧（= きょう） ===== */
@@ -399,10 +399,9 @@ function strengths(r){ const hs=r.runners, n=hs.length; let p, src;
   else { const rk=(key)=>{ const v=hs.map((h,i)=>[h[key],i]).filter(x=>x[0]!=null).sort((a,b)=>a[0]-b[0]); const o={}; v.forEach((x,k)=>o[x[1]]=k/Math.max(1,v.length-1)); return o; }; const ra=rk('lap_agari'), rt=rk('lap_ten');
     p=hs.map((h,i)=>{ let s=0; s+= ra[i]!=null?(1-ra[i])*1.1:0.4; s+= rt[i]!=null?(1-rt[i])*0.5:0.2; if(h.prevpos!=null) s+=Math.max(0,1-(h.prevpos-1)/8)*0.5; return Math.exp(s*1.6); }); src='暫定（ラップ・前走位置）'; }
   const vals=p.filter(v=>v!=null), m=vals.reduce((a,b)=>a+b,0)/Math.max(1,vals.length); p=p.map(v=>v==null?m*0.4:v); const s=p.reduce((a,b)=>a+b,0); return {p:p.map(v=>v/s),src}; }
-function adjust(r,st,pace){ const g=r.geo||{}, L=g.straight||300, slope=(g.slope||0)>0;
-  const P={S:{'逃げ':.38,'先行':.20,'差し':-.15,'追込':-.32},M:{'逃げ':.05,'先行':.05,'差し':-.02,'追込':-.08},H:{'逃げ':-.40,'先行':-.18,'差し':.16,'追込':.30}}[pace];
-  const ag=r.runners.filter(h=>h.lap_agari).map(h=>h.lap_agari).sort((a,b)=>a-b), agTh=ag.length>=3?ag[2]:null; const tn=r.runners.filter(h=>h.lap_ten).map(h=>h.lap_ten).sort((a,b)=>a-b), tnTh=tn.length>=3?tn[2]:null;
-  return r.runners.map(h=>{ const s=st[h.uno]; let a=P[s]||0; if(L>=450) a+=(s==='差し'||s==='追込')?.08:-.06; if(L<=300) a+=(s==='逃げ'||s==='先行')?.08:-.06; if(slope&&s==='追込') a+=.03; if(pace==='S'&&agTh!=null&&h.lap_agari!=null&&h.lap_agari<=agTh) a+=.10; if(pace==='H'&&tnTh!=null&&h.lap_ten!=null&&h.lap_ten<=tnTh&&s!=='逃げ') a+=.04; return a; }); }
+function adjust(r,st,pace){ /* 6年OOSの残差学習で推定(2023-2026, HIVE勝率に対する脚質×ペースの平均補正logit)。中心化済み。直線長・坂の脚質差は再現せず0 */
+  const T={H:{'逃げ':.305,'先行':.200,'差し':.148,'追込':.081},M:{'逃げ':.320,'先行':.268,'差し':.154,'追込':.079},S:{'逃げ':.336,'先行':.290,'差し':.162,'追込':.112}}[pace]||{};
+  const hs=r.runners, raw=hs.map(h=>T[st[h.uno]]??.15), m=raw.reduce((x,y)=>x+y,0)/Math.max(1,raw.length); return raw.map(v=>v-m); }
 const gumbel=()=>-Math.log(-Math.log(Math.random()+1e-12)+1e-12);
 function drawOrder(l){ const sc=l.map((v,i)=>[v+gumbel(),i]); sc.sort((a,b)=>b[0]-a[0]); return sc.map(x=>x[1]); }
 function monte(l,N){ const n=l.length, win=new Array(n).fill(0), q=new Array(n).fill(0), pl=new Array(n).fill(0), top3=n>=8?3:2; for(let k=0;k<N;k++){ const o=drawOrder(l); win[o[0]]++; q[o[0]]++; q[o[1]]++; for(let j=0;j<top3;j++) pl[o[j]]++; } return {win:win.map(v=>v/N),q:q.map(v=>v/N),pl:pl.map(v=>v/N),top3}; }
