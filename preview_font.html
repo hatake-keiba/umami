@@ -906,7 +906,7 @@ function draw(){ placeHorses(); }
     let lk=$('fp-link'); if(!lk){lk=document.createElement('link');lk.id='fp-link';lk.rel='stylesheet';document.head.appendChild(lk);}
     if(f.g) lk.href='https://fonts.googleapis.com/css2?family='+f.g+'&display=swap'; else lk.removeAttribute('href');
     // 元のCSSを加工: 直書きの黒/白を変数に、黒地の面は「主役の色」に、太さは対応表で置き換え
-    let css0=ORIG.replace(/background(-color)?:\s*(var\(--ink\)|#111111|#111)\b/g,'background$1:var(--acc)')
+    let css0=ORIG.replace(/background(-color)?:\s*var\(--ink\)/g,'background$1:var(--acc)').replace(/background(-color)?:\s*(#111111|#111)\b/g,'background$1:var(--acc)')
                  .replace(/#111111\b|#111\b/g,'var(--ink)').replace(/#ffffff\b|#fff\b/gi,'var(--bg)');
     const m=WMAP[st.w]; if(m) css0=css0.replace(/font-weight:\s*(\d{3})/g,(a,n)=>'font-weight:'+(m[n]||n));
     base.textContent=css0;
